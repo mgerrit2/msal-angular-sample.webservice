@@ -2,19 +2,20 @@ package com.msal.angular.msal_angular_sample.webservice.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
+@SuppressWarnings("java:S4502")
 @Configuration
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http){
         http
                 .cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         // Allow public access to Swagger UI and OpenAPI documentation
                         .requestMatchers(

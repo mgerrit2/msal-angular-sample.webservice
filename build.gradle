@@ -18,12 +18,18 @@ repositories {
 }
 
 dependencies {
+
 	implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// the implemention of the Azure entra-id
 	testImplementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testCompileOnly 'org.projectlombok:lombok'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

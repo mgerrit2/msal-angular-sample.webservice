@@ -2,6 +2,7 @@ package com.msal.angular.msal_angular_sample.webservice.swagger;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.*;
 import org.springdoc.core.customizers.OpenApiCustomizer;
@@ -33,7 +34,12 @@ public class OpenApiConfig {
                             Specifications:
                             - Java version: Java 25
                             - Identity Provider: Microsoft Entra ID
-                            """))
+                            """)
+                        .contact(new Contact()
+                                .name("Marc Gerrits")
+                                .email("gerrits.marc@hotmail.com")
+                        )
+                )
                 .addSecurityItem(new SecurityRequirement()
                         .addList("Azure_Entra_ID")
                         .addList("Bearer_Token") // Added Bearer Token security requirement

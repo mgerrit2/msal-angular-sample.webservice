@@ -1,4 +1,4 @@
-package com.msal.angular.msal_angular_sample.webservice.security;
+package com.msal.angular.msal_angular_sample.webservice.annotation;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;

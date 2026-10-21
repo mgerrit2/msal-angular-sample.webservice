@@ -1,6 +1,9 @@
 # Project for testing Microsoft Entra ID
 
-## Implementation of Microsoft Entra ID
+## Overview of the sample components
+![Architecture-overview.jpg](images/Architecture-overview.jpg)
+
+## Imp[overview.pdf](images/overview.pdf)lementation of Microsoft Entra ID
 
 ### Azure formats
 ![azure-overview.png](images/azure-overview.png)

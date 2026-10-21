@@ -17,7 +17,8 @@ public class WebConfig {
                         .allowedOrigins(
                                 "http://localhost:4200",
                                 "https://msal-angular-sample.onrender.com/",
-                                "https://msal-angular-sample-webservice.onrender.com"
+                                "https://msal-angular-sample-webservice.onrender.com",
+                                "https://msal-angular-sample-webservice.onrender.com/swagger-ui/index.html"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")

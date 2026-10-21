@@ -2,6 +2,14 @@
 
 ## Implementation of Microsoft Entra ID
 
+### Azure formats
+![azure-overview.png](images/azure-overview.png)
+![azure-Certificates& ecrets.png](images/azure-Certificates%26%20ecrets.png)
+![azure-API-permissions.png](images/azure-API-permissions.png)
+![azure-Expose-an-API.png](images/azure-Expose-an-API.png)
+add this "requestedAccessTokenVersion": 2,
+![azure-Manifest.png](images/azure-Manifest.png)
+
 ### The security filter
 ```java
 package com.msal.angular.msal_angular_sample.webservice.security;

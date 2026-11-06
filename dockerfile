@@ -1,5 +1,5 @@
 # ==========================================
-# Stage 1: Build the Java application & extract layers
+# Stage 1: Build the Java application
 # ==========================================
 FROM eclipse-temurin:25-jdk AS builder
 WORKDIR /application
@@ -22,11 +22,14 @@ COPY src src
 RUN --mount=type=cache,target=/root/.gradle \
     ./gradlew clean bootJar --no-daemon --no-configuration-cache
 
-# Extract layers using layertools and ensure all possible layer folders exist
-RUN java -Djarmode=layertools -jar build/libs/*.jar extract --destination extracted && \
-    mkdir -p extracted/snapshot-dependencies extracted/spring-boot-loader extracted/dependencies extracted/application
+# Extract the fat JAR contents into an application directory
+RUN set -e && \
+    JAR_FILE=$(find build/libs -name "*.jar" ! -name "*-plain.jar" | head -n 1) && \
+    echo "Found target JAR: $JAR_FILE" && \
+    mkdir -p /extracted-app && \
+    unzip -q "$JAR_FILE" -d /extracted-app || jar xf "$JAR_FILE" -C /extracted-app
 
-# Generate a minimal custom JRE using jlink (including java.security.jgss for Tomcat security)
+# Generate a minimal custom JRE using jlink
 RUN jlink \
     --add-modules java.base,java.logging,java.naming,java.sql,java.xml,java.management,java.instrument,jdk.unsupported,java.desktop,java.security.jgss \
     --strip-debug \
@@ -37,15 +40,14 @@ RUN jlink \
 
 
 # ==========================================
-# Stage 2: Final Ultra-Slim Runtime Image (Debian Slim)
+# Stage 2: Final Runtime Image
 # ==========================================
 FROM debian:bookworm-slim
 LABEL author="Gerrits Marc"
 
-# Security: Non-root user & minimal runtime environment
 RUN groupadd -r spring && useradd -r -g spring spring
 
-# Copy custom minimal JRE from builder stage
+# Copy custom minimal JRE
 COPY --from=builder /opt/custom-jre /opt/custom-jre
 
 ENV JAVA_HOME=/opt/custom-jre
@@ -53,11 +55,10 @@ ENV PATH="$JAVA_HOME/bin:$PATH"
 
 WORKDIR /application
 
-# Copy extracted Spring Boot layers safely
-COPY --chown=spring:spring --from=builder /application/extracted/dependencies/ ./
-COPY --chown=spring:spring --from=builder /application/extracted/spring-boot-loader/ ./
-COPY --chown=spring:spring --from=builder /application/extracted/snapshot-dependencies/ ./
-COPY --chown=spring:spring --from=builder /application/extracted/application/ ./
+# Copy extracted BOOT-INF structure directly into WORKDIR
+COPY --chown=spring:spring --from=builder /extracted-app/BOOT-INF ./BOOT-INF
+COPY --chown=spring:spring --from=builder /extracted-app/META-INF ./META-INF
+COPY --chown=spring:spring --from=builder /extracted-app/org ./org
 
 ENV SPRING_PROFILES_ACTIVE=render
 ENV JAVA_OPTS="-XX:TieredStopAtLevel=1 \
@@ -68,5 +69,5 @@ ENV JAVA_OPTS="-XX:TieredStopAtLevel=1 \
 EXPOSE 8080 5005
 USER spring:spring
 
-# Run Java application
-ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS org.springframework.boot.loader.launch.JarLauncher"]
+# Run via classpath pointing directly to the Application class
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -cp BOOT-INF/classes:BOOT-INF/lib/* com.msal.angular.msal_angular_sample.webservice.Application"]

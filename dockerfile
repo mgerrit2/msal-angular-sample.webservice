@@ -1,8 +1,10 @@
-# Stage 1: Build the Java application (if using multi-stageS
+# ==========================================
+# Stage 1: Build the Java application & extract layers
+# ==========================================
 FROM eclipse-temurin:25-jdk AS builder
 WORKDIR /application
 
-# 1. Copy ALL build-essential configuration files
+# Copy build files
 COPY gradlew .
 COPY gradle gradle
 COPY build.gradle* .
@@ -13,43 +15,58 @@ RUN cat gradlew | tr -d '\r' > gradlew.linux && \
     mv gradlew.linux gradlew && \
     chmod +x gradlew
 
-# 3. Copy source code
+# Copy source code
 COPY src src
 
-# 4. Compile fat JAR using Gradle caching
+# Compile fat JAR
 RUN --mount=type=cache,target=/root/.gradle \
     ./gradlew clean bootJar --no-daemon --no-configuration-cache
 
-# Simply copy the built jar to app.jar
-RUN cp build/libs/*.jar app.jar
+# Extract layers using layertools and ensure all possible layer folders exist
+RUN java -Djarmode=layertools -jar build/libs/*.jar extract --destination extracted && \
+    mkdir -p extracted/snapshot-dependencies extracted/spring-boot-loader extracted/dependencies extracted/application
+
+# Generate a minimal custom JRE using jlink (including java.security.jgss for Tomcat security)
+RUN jlink \
+    --add-modules java.base,java.logging,java.naming,java.sql,java.xml,java.management,java.instrument,jdk.unsupported,java.desktop,java.security.jgss \
+    --strip-debug \
+    --no-man-pages \
+    --no-header-files \
+    --compress=2 \
+    --output /opt/custom-jre
 
 
 # ==========================================
-# Stage 2: Final Light Runtime Image (Ultra-Slim)
+# Stage 2: Final Ultra-Slim Runtime Image (Debian Slim)
 # ==========================================
-FROM eclipse-temurin:25-jre-alpine
+FROM debian:bookworm-slim
 LABEL author="Gerrits Marc"
 
-# Security: Non-root user
-RUN addgroup -S spring && adduser -S spring -G spring
+# Security: Non-root user & minimal runtime environment
+RUN groupadd -r spring && useradd -r -g spring spring
+
+# Copy custom minimal JRE from builder stage
+COPY --from=builder /opt/custom-jre /opt/custom-jre
+
+ENV JAVA_HOME=/opt/custom-jre
+ENV PATH="$JAVA_HOME/bin:$PATH"
+
 WORKDIR /application
 
-# Copy compiled JAR from Stage 1 (builder) into Stage 2
-COPY --chown=spring:spring --from=builder /application/app.jar ./app.jar
+# Copy extracted Spring Boot layers safely
+COPY --chown=spring:spring --from=builder /application/extracted/dependencies/ ./
+COPY --chown=spring:spring --from=builder /application/extracted/spring-boot-loader/ ./
+COPY --chown=spring:spring --from=builder /application/extracted/snapshot-dependencies/ ./
+COPY --chown=spring:spring --from=builder /application/extracted/application/ ./
 
-# Java 25 High-Performance Flags:
-# - TieredStopAtLevel=1: Fastest JIT startup for containers
-# - Virtual Threads: Enabled for Java 25 performance
-# - CDS: Uses the generated class data archive if present
+ENV SPRING_PROFILES_ACTIVE=render
 ENV JAVA_OPTS="-XX:TieredStopAtLevel=1 \
                -Dspring.threads.virtual.enabled=true \
                -Dspring.main.lazy-initialization=true \
                -Dspring.data.jpa.repositories.bootstrap-mode=deferred"
 
-# Expose Spring Boot app port (8080) and Remote Debugger (5005)
 EXPOSE 8080 5005
-
 USER spring:spring
 
-# Launch Spring Boot using JarLauncher with exec for proper signal handling
-ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]
+# Run Java application
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS org.springframework.boot.loader.launch.JarLauncher"]

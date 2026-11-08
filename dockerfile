@@ -60,7 +60,7 @@ COPY --chown=spring:spring --from=builder /extracted-app/BOOT-INF ./BOOT-INF
 COPY --chown=spring:spring --from=builder /extracted-app/META-INF ./META-INF
 COPY --chown=spring:spring --from=builder /extracted-app/org ./org
 
-ENV SPRING_PROFILES_ACTIVE=render
+ENV SPRING_PROFILES_ACTIVE=prod
 ENV JAVA_OPTS="-XX:TieredStopAtLevel=1 \
                -Dspring.threads.virtual.enabled=true \
                -Dspring.main.lazy-initialization=true \

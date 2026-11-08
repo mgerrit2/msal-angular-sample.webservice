@@ -22,12 +22,10 @@ COPY src src
 RUN --mount=type=cache,target=/root/.gradle \
     ./gradlew clean bootJar --no-daemon --no-configuration-cache
 
-# Extract the fat JAR contents into an application directory
-RUN set -e && \
-    JAR_FILE=$(find build/libs -name "*.jar" ! -name "*-plain.jar" | head -n 1) && \
-    echo "Found target JAR: $JAR_FILE" && \
-    mkdir -p /extracted-app && \
-    unzip -q "$JAR_FILE" -d /extracted-app || jar xf "$JAR_FILE" -C /extracted-app
+# Extract layers using layertools and ensure all possible layer folders exist
+RUN java -Djarmode=layertools -jar build/libs/*.jar extract --destination extracted && \
+    mkdir -p extracted/snapshot-dependencies extracted/spring-boot-loader extracted/dependencies extracted/application
+
 
 # Generate a minimal custom JRE using jlink
 RUN jlink \

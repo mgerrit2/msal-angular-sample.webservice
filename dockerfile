@@ -22,9 +22,9 @@ COPY src src
 RUN --mount=type=cache,target=/root/.gradle \
     ./gradlew clean bootJar --no-daemon --no-configuration-cache
 
-# Extract layers using layertools and ensure all possible layer folders exist
-RUN java -Djarmode=layertools -jar build/libs/*.jar extract --destination extracted && \
-    mkdir -p extracted/snapshot-dependencies extracted/spring-boot-loader extracted/dependencies extracted/application
+# Extract the jar structure cleanly without relying on unsupported layertools modes
+RUN mkdir -p extracted && \
+    unzip -q build/libs/*.jar -d extracted
 
 
 # Generate a minimal custom JRE using jlink

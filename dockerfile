@@ -53,10 +53,10 @@ ENV PATH="$JAVA_HOME/bin:$PATH"
 
 WORKDIR /application
 
-# Copy extracted BOOT-INF structure directly into WORKDIR
-COPY --chown=spring:spring --from=builder /extracted-app/BOOT-INF ./BOOT-INF
-COPY --chown=spring:spring --from=builder /extracted-app/META-INF ./META-INF
-COPY --chown=spring:spring --from=builder /extracted-app/org ./org
+# Copy extracted structure directly from the correct builder path (/application/extracted)
+COPY --chown=spring:spring --from=builder /application/extracted/BOOT-INF ./BOOT-INF
+COPY --chown=spring:spring --from=builder /application/extracted/META-INF ./META-INF
+COPY --chown=spring:spring --from=builder /application/extracted/org ./org
 
 ENV SPRING_PROFILES_ACTIVE=prod
 ENV JAVA_OPTS="-XX:TieredStopAtLevel=1 \

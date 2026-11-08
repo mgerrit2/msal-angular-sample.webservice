@@ -22,9 +22,9 @@ COPY src src
 RUN --mount=type=cache,target=/root/.gradle \
     ./gradlew clean bootJar --no-daemon --no-configuration-cache
 
-# Extract the jar structure cleanly without relying on unsupported layertools modes
 RUN mkdir -p extracted && \
-    unzip -q build/libs/*.jar -d extracted
+    cd extracted && \
+    jar -xf ../build/libs/*.jar
 
 
 # Generate a minimal custom JRE using jlink

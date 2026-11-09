@@ -21,7 +21,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "/api/raw-token"
                         ).permitAll()
                         // All other endpoints (like /api/protected) require authentication
                         .anyRequest().authenticated()

@@ -1,9 +1,11 @@
 package com.msal.angular.msal_angular_sample.webservice.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class JwtTokenResponseDto {
     @JsonProperty("iss")
     private String iss;
@@ -43,4 +45,7 @@ public class JwtTokenResponseDto {
 
     @JsonProperty("exp")
     private long exp;
+
+    @JsonProperty("email")
+    private String email;
 }

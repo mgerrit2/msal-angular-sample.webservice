@@ -17,6 +17,17 @@ add this "requestedAccessTokenVersion": 2,
 ![azure-Manifest.png](images/azure-Manifest.png)
 
 
+### propertie settings
+#### Directory (tenant) ID
+spring.security.oauth2.resourceserver.jwt.issuer-uri=https://login.microsoftonline.com/aafea113-8a60-476f-97e1-f518d6cd5db0/v2.0
+springdoc.swagger-ui.oauth.use-pkce-with-authorization-code-grant=true
+
+#### The Application (Client) ID
+springdoc.swagger-ui.oauth.client-id=3b2948af-005e-461a-bcfe-3024f8239c32
+server.ssl.enabled=false
+
+# for debugging purpose
+application.security.jwt.secret-key=${APPLICATION_SECURITY_JWT_SECRET_KEY}
 
 ### Enable with profile entra-id access and custom jwt token access
 #### Overview

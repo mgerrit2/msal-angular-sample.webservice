@@ -3,6 +3,8 @@ plugins {
 	id 'org.springframework.boot' version '4.1.1'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'checkstyle' // check style of code
+	id 'com.github.spotbugs' version '6.5.13' // Check plugin portal for the latest version
+	id 'pmd'
 }
 
 group = 'com.msal.angular'
@@ -66,4 +68,35 @@ checkstyle {
 	configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
 	ignoreFailures = false
 	maxWarnings = 0
+}
+
+spotbugs {
+	toolVersion = '4.9.8'
+	ignoreFailures = false
+	effort = 'max' // min, default, or max
+	reportLevel = 'medium' // low, medium, or high
+}
+
+spotbugsMain {
+	ignoreFailures = false
+}
+
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+	reports {
+		// Enable XML if other tools need to parse it, or keep it disabled if you only want HTML
+		xml.required = false
+
+		html {
+			required = true
+			// Using task.name ensures spotbugsMain and spotbugsTest generate separate files
+			// (e.g., .../spotbugs/spotbugsMain.html and .../spotbugs/spotbugsTest.html)
+			outputLocation = layout.buildDirectory.file("reports/spotbugs/${name}.html")
+		}
+	}
+}
+
+pmd {
+	toolVersion = '7.16.0'
+	ruleSets = ['category/java/errorprone.xml', 'category/java/bestpractices.xml']
+	ignoreFailures = false
 }

@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.1.1'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'checkstyle' // check style of code
 }
 
 group = 'com.msal.angular'
@@ -58,4 +59,11 @@ bootJar {
 	layered {
 		enabled = true
 	}
+}
+
+checkstyle {
+	toolVersion = '14.4.0'
+	configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
+	ignoreFailures = false
+	maxWarnings = 0
 }

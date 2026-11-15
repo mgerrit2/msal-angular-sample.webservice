@@ -20,6 +20,9 @@ import java.util.Base64;
 @RequestMapping("/api")
 public class ApiController {
 
+    private static final int MIN_JWT_CHUNKS = 2;
+    private static final int JWT_PAYLOAD_INDEX = 1;
+    private static final int BEARER_PREFIX_LENGTH = 7;
 
     @Operation(summary = "getData",responses = {
             @ApiResponse(
@@ -92,7 +95,7 @@ public class ApiController {
         try {
             // JWT format: header.payload.signature
             String[] chunks = jwtToken.split("\\.");
-            if (chunks.length < 2) {
+            if (chunks.length < MIN_JWT_CHUNKS) {
                 throw new IllegalArgumentException("Invalid JWT token structure.");
             }
 

@@ -4,7 +4,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
+import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
@@ -74,7 +78,12 @@ public class SecurityJwtConfig {
                 try {
                     return localDecoder.decode(token);
                 } catch (Exception e2) {
-                    throw new JwtException("Token validation failed for both Azure and local custom validators.");
+                    // Combine or chain the exceptions so stack traces aren't lost
+                    JwtException combinedException = new JwtException(
+                            "Token validation failed for both Azure and local custom validators.", e2);
+                    // Optionally add e1 as a suppressed exception to keep both logs intact
+                    combinedException.addSuppressed(e1);
+                    throw combinedException;
                 }
             }
         };

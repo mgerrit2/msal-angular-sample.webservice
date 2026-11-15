@@ -1,9 +1,11 @@
 package com.msal.angular.msal_angular_sample.webservice.annotation;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
+@Log4j2
 @Component("dbSecurity")
 public class DatabaseSecurityEvaluator {
 
@@ -19,15 +21,17 @@ public class DatabaseSecurityEvaluator {
             String email = jwt.getClaimAsString("preferred_username");
             String name = jwt.getClaimAsString("name");
 
-            // Build a log message using StringBuilder
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("Evaluating Admin Access -> ")
-                    .append("OID: ").append(oid)
-                    .append(", Email: ").append(email)
-                    .append(", Name: ").append(name);
+            if (log.isDebugEnabled()) {
+                // Build a log message using StringBuilder
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("Evaluating Admin Access -> ")
+                        .append("OID: ").append(oid)
+                        .append(", Email: ").append(email)
+                        .append(", Name: ").append(name);
 
-            // Print out the details for debugging
-            System.out.println(stringBuilder.toString());
+                // Print out the details for debugging
+                log.debug(stringBuilder.toString());
+            }
 
             // Query database to check if this user's OID has admin privileges
             // return userRepository.existsByOidAndRole(oid, "ADMIN");

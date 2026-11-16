@@ -23,14 +23,13 @@ public class DatabaseSecurityEvaluator {
 
             if (log.isDebugEnabled()) {
                 // Build a log message using StringBuilder
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append("Evaluating Admin Access -> ")
-                        .append("OID: ").append(oid)
-                        .append(", Email: ").append(email)
-                        .append(", Name: ").append(name);
+                String stringBuilder = "Evaluating Admin Access -> " +
+                        "OID: " + oid +
+                        ", Email: " + email +
+                        ", Name: " + name;
 
                 // Print out the details for debugging
-                log.debug(stringBuilder.toString());
+                log.debug(stringBuilder);
             }
 
             // Query database to check if this user's OID has admin privileges

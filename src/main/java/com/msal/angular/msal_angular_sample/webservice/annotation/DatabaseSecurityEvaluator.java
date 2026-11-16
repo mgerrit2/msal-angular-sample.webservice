@@ -9,9 +9,6 @@ import org.springframework.stereotype.Component;
 @Component("dbSecurity")
 public class DatabaseSecurityEvaluator {
 
-    // Inject your database repository here when ready
-    // private final UserRepository userRepository;
-
     public boolean isAdmin(Authentication authentication) {
 
         if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
@@ -32,8 +29,6 @@ public class DatabaseSecurityEvaluator {
                 log.debug(stringBuilder);
             }
 
-            // Query database to check if this user's OID has admin privileges
-            // return userRepository.existsByOidAndRole(oid, "ADMIN");
         }
 
         return true; // placeholder logic
